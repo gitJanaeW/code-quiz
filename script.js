@@ -11,6 +11,7 @@ var startBtnEl = document.createElement("button");
 // setting h1El
 h1El.setAttribute("id", "main-h1");
 h1El.textContent = "Coding Quiz Challenge";
+h1El.appendChild(mainSectionEl);
 
 // Setting pEl
 pEl.setAttribute("id", "main-p");
