@@ -12,7 +12,7 @@ var answer3 = document.createElement("button");
 var rightAnswer = document.createElement("button");
 var feedback = document.createElement("h2");
 // answer array
-var questionsArr = [
+var questionsArr = [ // Use this to do h1El.textContent = questionsArr[i];
     "Placeholder",
     "Placeholder",
     "Placeholder",
@@ -53,10 +53,13 @@ mainSectionEl.appendChild(startBtnEl);
 // START QUIZ FUNCTION
 function startQuiz(){
     console.log("QUIZ STARTED");
-    // Remove current page
-    // for(var i = 0; i <= mainSectionEl.childElementCount; i++){
-    //     mainSectionEl.
-    // }
+    // Remove home page
+    for(var i = 0; i < mainSectionEl.childElementCount; i++){
+        homePage[i].remove();
+        console.log(homePage[i]);
+    }
+
+
 
     // mainSectionEl.removeChild(); TRY THIS TOO
 
