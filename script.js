@@ -13,7 +13,7 @@ var answer1 = newBtn;
 var answer2 = newBtn;
 var answer3 = newBtn;
 var rightAnswer = newBtn;
-var countNum = 15; // RETURN THIS TO 50 LATER
+var countNum = 50;
 var timerBreakout = 0;
 // question / answer objects
 var q1 = {
@@ -49,9 +49,10 @@ var q6 = {
 // arrays
 var questionsArr = [q1, q2, q3, q4, q5, q6];
 var homePage = [h1El, pEl, startBtnEl];
+questionPage = [h1El, answersListEl, answerFeedback]
 var finishedQuestions = [];
 // current question
-var currentQuestion = questionsArr[randomize(0, questionsArr.length)];
+var currentQuestion = null;
 
 // HOME SCREEN
 // time starter value
@@ -90,17 +91,21 @@ function clearHomePage(){
 
 // PRINT NEW QUESTION
 function createNewPage(){
-    // Change h1 to a random question
-    h1El.textContent =  currentQuestion.question;
-    // Create a current question "answers value var"
+    // Pick a questions/answers
+    currentQuestion = questionsArr[randomize(0, questionsArr.length)];
+    console.log("The current question is: ", currentQuestion);
+    debugger;
     var currentAnswer = currentQuestion.shuffleAnswers;
+
+    // Change h1 to a random question
+    h1El.textContent = "" + currentQuestion.question;
 
     // Randomize current answer array
     shuffle(currentAnswer);
     // Create an li for each item in currentAnswer array
     // NOTE: forEach() reference from: https://gomakethings.com/two-more-ways-to-create-html-from-an-array-of-data-with-vanilla-js/
     var i = 1;
-    currentAnswer.forEach(function(currentAnswer){
+    currentAnswer.forEach(function(currentAnswer){ //Couldn't I simplify the shuffle array and buttons if i just made this a "if(mainSectionEl.children.length < 4){make buttons}"?
         var answer = document.createElement("li");
         answer.innerHTML = "<button id='data-answer-btn" + i.toString() + "' class='btn'>" + currentAnswer + "</button>";
         answersListEl.appendChild(answer);
@@ -109,35 +114,52 @@ function createNewPage(){
 
     // Create a response category
     answerFeedback.className = "answer-h2";
-    answerFeedback.setAttribute("visiblilty", "hidden");
+    answerFeedback.setAttribute("visiblilty", "hidden"); // I don't think this is working
     answersListEl.appendChild(answerFeedback);
+    
+    return currentAnswer;
+}
 
-    return currentQuestion;
+
+function clearQuestionPage(){
+    // Clear main element children (except h1)
+    for(var i = 1; i < mainSectionEl.childElementCount; i++){
+        mainSectionEl.children[i].remove();
+    }
+    
+    if(questionsArr.length !== 0){
+        console.log("Printing new array:");
+        createNewPage();
+    }
+    else{
+        // finalPage();
+    }
 }
 
 // START AND MAINTAIN TIMER
 function timerHandler(){
-    setInterval(function(){
-        if(countNum > 0){
+    var timerInterval = setInterval(function(){
+        if(countNum > 1){
             countNum--;
             timeLeftEl.textContent = countNum;
         }
         else{
-            countNum = 0;
-            clearInterval(timerHandler);
+            countNum = 0
+            timeLeftEl.textContent = countNum;
+            clearInterval(timerInterval);
+            // resultsPage();
         }
-        console.log(countNum);
+        // console.log(countNum);
     }, 1000);
     console.log("Timer started");
-    console.log(countNum);
-
-    if(countNum <= 5){
+    // Why isn't this working?
+    if(countNum === 5){
         timerWarning();
     }
 }
 
 function timerWarning(){
-    setInterval(function(){
+    var timerInterval = setInterval(function(){
         if(timer.style.color === "white"){
             timer.style.color = "red";
             timerBreakout++;
@@ -146,11 +168,13 @@ function timerWarning(){
             timer.style.color = "white";
             timerBreakout++;
         }
-        
-        if(timerBreakout === 4){
-            clearInterval(timerWarning);
+        console.log(timerBreakout)
+        if(timerBreakout >= 4){
+            clearInterval(timerInterval);
         }
     }, 500);
+    timer.style.color = "white";
+    timerBreakout = 0;
 }
 
 // RIGHT/WRONG ANSWER HANDLER
@@ -160,19 +184,20 @@ function answerHandler(event){
     if(targetEl.textContent === currentQuestion.rightAnswer){
         // Show correct answer for a sec
         answerFeedback.textContent = "Correct!";
-        console.log("Right answer!")
-        createNewPage();
+        console.log("Right answer!");
+        debugger;
+        finishedQuestionsHandler();
+        clearQuestionPage();
     }
-    // if the target is any other button...
+    // if the incorrect target button is clicked...
     if(targetEl.matches(".btn") && targetEl !== currentQuestion.rightAnswer){
         // Show incorrect answer for a sec
         answerFeedback.textContent = "Incorrect...";
+        console.log("Wrong answer...");
         countNum -= 10;
         timerWarning();
-        // setInterval(function(){
-
-        // }, 1000);
-        console.log("Clicked wrong button");
+        finishedQuestionsHandler();
+        clearQuestionPage();
     }
 }
 
@@ -181,7 +206,7 @@ function finishedQuestionsHandler(){
     // Remove question objects that have already been asked, by pushing them to a different array. (Might hypothetically be useful to keep questions and values for feature updates)
     finishedQuestions.push(currentQuestion);
     console.log(finishedQuestions);
-    delete currentQuestion;
+    questionsArr.splice(currentQuestion, 1);
 }
 
 // RANDOMIZER
@@ -215,12 +240,12 @@ function startQuiz(){
     clearHomePage();
     createNewPage();
     timerHandler();
-    finishedQuestionsHandler();
+    // wait for answerHandler() event "click"
 }
 
 startBtnEl.addEventListener("click", startQuiz);
 answersListEl.addEventListener("click", answerHandler);
 // NOTE TO SELF:
-// You're going to have to put some sort of unique identifier on the buttons that are the right
-// answer. How can that be done if the buttons must be randomized before they're printed in the
-// DOM? Should I change the forEach() technique? Is there another way?
+// For some reason, answerHandler() is being called after clearQuestionPage().
+// Issue is probably that createPage() is not creating a new question. Fix that first and see if issue persists
+// It might have something to do with the createPage() call inside of clearQuestionPage(); Idk
