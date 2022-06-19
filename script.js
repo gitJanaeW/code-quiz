@@ -1,46 +1,56 @@
 // VARIABLES
 // getting vars
 var mainSectionEl = document.querySelector("#main"); // OFFICE HOURS: Is getting an element by its class appropriate? Should it always be by its id?
-var time = document.querySelector(".time");
+var timeLeft = document.querySelector("#time-counter").textContent;
 // created elements
 var h1El = document.createElement("h1");
 var pEl = document.createElement("p");
 var newBtn = document.createElement("button");
+var answerFeedback = document.createElement("h2");
 var startBtnEl = newBtn;
 var answer1 = newBtn;
 var answer2 = newBtn;
 var answer3 = newBtn;
 var rightAnswer = newBtn;
 var feedback = document.createElement("h2");
+
 // question / answer objects
 var q1 = {
     question: "What do you think about Question 1?",
-    answers: ["Question 1 Answers", "Question 1 Answers", "Question 1 Answers", "Right Answer"]
+    shuffleAnswers: ["Question 1 Answers", "Question 1 Answers", "Question 1 Answers", "Right Answer"],
+    rightAnswer: "Right Answer"
 }
 var q2 = {
     question: "What do you think about Question 2?",
-    answers: ["Question 2 Answers", "Question 2 Answers", "Question 2 Answers", "Right Answer"]
+    shuffleAnswers: ["Question 2 Answers", "Question 2 Answers", "Question 2 Answers", "Right Answer"],
+    rightAnswer: "Right Answer"
 }
 var q3 = {
     question: "What do you think about Question 3?",
-    answers: ["Question 3 Answers", "Question 3 Answers", "Question 3 Answers", "Right Answer"]
+    shuffleAnswers: ["Question 3 Answers", "Question 3 Answers", "Question 3 Answers", "Right Answer"],
+    rightAnswer: "Right Answer"
 }
 var q4 = {
     question: "What do you think about Question 4?",
-    answers: ["Question 4 Answers", "Question 4 Answers", "Question 4 Answers", "Right Answer"]
+    shuffleAnswers: ["Question 4 Answers", "Question 4 Answers", "Question 4 Answers", "Right Answer"],
+    rightAnswer: "Right Answer"
 }
 var q5 = {
     question: "What do you think about Question 5?",
-    answers: ["Question 5 Answers", "Question 5 Answers", "Question 5 Answers", "Right Answer"]
+    shuffleAnswers: ["Question 5 Answers", "Question 5 Answers", "Question 5 Answers", "Right Answer"],
+    rightAnswer: "Right Answer"
 }
 var q6 = {
     question: "What do you think about Question 6?",
-    answers: ["Question 6 Answers", "Question  Answers", "Question 6 Answers", "Right Answer"]
+    shuffleAnswers: ["Question 6 Answers", "Question 6 Answers", "Question 6 Answers", "Right Answer"],
+    rightAnswer: "Right Answer"
 }
 // arrays
 var questionsArr = [q1, q2, q3, q4, q5, q6];
 var homePage = [h1El, pEl, startBtnEl];
 var finishedQuestions = [];
+// current question
+var currentQuestion = questionsArr[randomize(0, questionsArr.length)];
 
 // HOME SCREEN
 // setting main
@@ -59,46 +69,97 @@ mainSectionEl.appendChild(pEl);
 // Setting startBtnEl
 startBtnEl.className = "btn";
 startBtnEl.setAttribute("id", "start-btn");
-startBtnEl.setAttribute("onclick", "startQuiz()");
 startBtnEl.innerHTML = "<p>Start Quiz<p>";
 mainSectionEl.appendChild(startBtnEl);
 
-// QUESTION SETUP
+// Create a ul in mainSectionEl for later (must be global so answers can be checked
+var answersListEl = document.createElement("ul");
+answersListEl.setAttribute("id", "answers");
+mainSectionEl.appendChild(answersListEl);
 
-
-// START QUIZ FUNCTION
+// CLEAR HOMEPAGE
 function clearHomePage(){
-    // Remove home page
     for(var i = 1; i < homePage.length; i++){
         homePage[i].remove();
     }
 };
 
+// PRINT NEW QUESTION
 function createNewPage(){
-    // Store random number so that it doesn't randomize whenever mentioned
-    var randomQuestionNum = randomize(0, questionsArr.length);
-    console.log("Array value", randomQuestionNum);
-    // Stores value of the current question object
-    var currentQuestion = questionsArr[randomQuestionNum];
-
+    timeLeft = "50";
+    
     // Change h1 to a random question
     h1El.textContent =  currentQuestion.question;
     // Create a current question "answers value var"
-    var currentAnswer = currentQuestion.answers;
+    var currentAnswer = currentQuestion.shuffleAnswers;
 
-    // Create a ul in mainSectionEl
-    var answersListEl = document.createElement("ul");
-    answersListEl.setAttribute("id", "answers");
-    mainSectionEl.appendChild(answersListEl);
     // Randomize current answer array
     shuffle(currentAnswer);
     // Create an li for each item in currentAnswer array
     // NOTE: forEach() reference from: https://gomakethings.com/two-more-ways-to-create-html-from-an-array-of-data-with-vanilla-js/
+    var i = 1;
     currentAnswer.forEach(function(currentAnswer){
         var answer = document.createElement("li");
-        answer.innerHTML = "<button id='answer-btn' class='btn'>" + currentAnswer + "</button>";
+        answer.innerHTML = "<button id='data-answer-btn" + i.toString() + "' class='btn'>" + currentAnswer + "</button>";
         answersListEl.appendChild(answer);
+        i++;
     });
+
+    // Create a response category
+    answerFeedback.className = "answer-h2";
+    answerFeedback.setAttribute("visiblilty", "hidden");
+    answersListEl.appendChild(answerFeedback);
+
+    return currentQuestion;
+}
+
+// START AND MAINTAIN TIMER
+function timerHandler(){
+    if(timeLeft > 0){
+        timeLeft = parseInt(timeLeft);
+        timeLeft--;
+    }
+    else{
+        timeLeft = "0";
+        clearInterval(timerHandler);
+        // End result function()
+    }
+
+    // if(timeLeft < 5){
+    //     timeLeft.style.color = "red";
+    // }
+
+    console.log("Timer started");
+    console.log(timeLeft);
+    // return countNum;
+}
+setInterval(timerHandler, 1000);
+
+// RIGHT/WRONG ANSWER HANDLER
+function answerHandler(event){
+    var targetEl = event.target;
+    // if it's target is the right answer button...
+    if(targetEl.textContent === currentQuestion.rightAnswer){
+        // Show correct answer for a sec
+        answerFeedback.textContent = "Correct!";
+        console.log("Right answer!")
+        createNewPage();
+    }
+    // if the target is any other button...
+    if(targetEl.matches(".btn") && targetEl !== currentQuestion.rightAnswer){
+        // Show incorrect answer for a sec
+        answerFeedback.textContent = "Incorrect...";
+        // countNum -= 10;
+        console.log("Clicked wrong button");
+    }
+}
+
+// DELETE USED QUESTIONS
+function finishedQuestionsHandler(){
+    // Remove question objects that have already been asked, by pushing them to a different array. (Might hypothetically be useful to keep questions and values for feature updates)
+    finishedQuestions.push(currentQuestion);
+    console.log(finishedQuestions);
+    delete currentQuestion;
 }
 
 // RANDOMIZER
@@ -128,19 +189,16 @@ function shuffle(arr){
 }
 
 function startQuiz(){
+    debugger;
     clearHomePage();
     createNewPage();
-    startTimer();
-    
-    
-
+    timerHandler();
     finishedQuestionsHandler();
 }
 
-function finishedQuestionsHandler(){
-    // Remove question objects that have already been asked, by pushing them to a different array. (Might hypothetically be useful to keep questions and values for feature updates)
-    currentQuestion.push(finishedQuestions);
-    console.log(finishedQuestions);
-    delete currentQuestion;
-}
-    
+startBtnEl.addEventListener("click", startQuiz);
+answersListEl.addEventListener("click", answerHandler);
+// NOTE TO SELF:
+// You're going to have to put some sort of unique identifier on the buttons that are the right
+// answer. How can that be done if the buttons must be randomized before they're printed in the
+// DOM? Should I change the forEach() technique? Is there another way?

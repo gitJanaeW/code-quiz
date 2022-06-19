@@ -57,6 +57,15 @@ p{
     text-align: center;
 }
 
+.answer-h2{
+    color: gray;
+    border-top: 2px solid gray;
+    padding: 0 87% 0 2%;
+    font-weight: lighter;
+    font-style: italic;
+    min-width: 300px;
+}
+
 #main-p{
     padding: 2px;
     line-height: 1.5;
@@ -64,7 +73,11 @@ p{
     text-align: center;
 }
 
-#start-btn, #answer-btn{
+#start-btn,
+#data-answer-btn1,
+#data-answer-btn2,
+#data-answer-btn3,
+#data-answer-btn4{
     background-color: var(--primary-color);
     border: none;
     box-shadow: 0 2px;
@@ -72,18 +85,27 @@ p{
 
 
 #start-btn{
-    padding: 10px;
-    margin: 8px 45%;
+    margin: 8px auto;
     border-radius: 8px;
+    min-width: 90px;
+    max-width: 90px;
 }
 
-#answer-btn{
+#data-answer-btn1,
+#data-answer-btn2,
+#data-answer-btn3,
+#data-answer-btn4{
     min-width: 300px;
+    padding: 20px;
     margin: 2%;
     color: white;
 }
 
-#start-btn p, #answer-btn p{
+#start-btn p,
+#data-answer-btn1 p,
+#data-answer-btn2 p,
+#data-answer-btn3 p,
+#data-answer-btn4 p{
     color: white;
 }
 
@@ -91,7 +113,10 @@ p{
     background-color: var(--hover-color-blue);
 }
 
-#answer-btn:hover{
+#data-answer-btn1:hover,
+#data-answer-btn2:hover,
+#data-answer-btn3:hover,
+#data-answer-btn4:hover{
     background-color: var(--hover-color-blue);
 }
 
@@ -100,4 +125,8 @@ p{
     flex-direction: column;
     margin: 0 auto;
     width: 80%;
+}
+
+@media screen(max-width: 490) {
+    /* Change h1 font size, button size and ul margins */
 }
