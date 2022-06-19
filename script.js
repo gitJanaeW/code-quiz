@@ -1,7 +1,8 @@
 // VARIABLES
 // getting vars
 var mainSectionEl = document.querySelector("#main"); // OFFICE HOURS: Is getting an element by its class appropriate? Should it always be by its id?
-var timeLeft = document.querySelector("#time-counter").textContent;
+var timeLeftEl = document.querySelector("#time-counter");
+var timer = document.querySelector(".time");
 // created elements
 var h1El = document.createElement("h1");
 var pEl = document.createElement("p");
@@ -12,8 +13,8 @@ var answer1 = newBtn;
 var answer2 = newBtn;
 var answer3 = newBtn;
 var rightAnswer = newBtn;
-var feedback = document.createElement("h2");
-
+var countNum = 15; // RETURN THIS TO 50 LATER
+var timerBreakout = 0;
 // question / answer objects
 var q1 = {
     question: "What do you think about Question 1?",
@@ -53,6 +54,9 @@ var finishedQuestions = [];
 var currentQuestion = questionsArr[randomize(0, questionsArr.length)];
 
 // HOME SCREEN
+// time starter value
+timeLeftEl.textContent = 50;
+
 // setting main
 mainSectionEl.setAttribute("id", "main")
 
@@ -86,8 +90,6 @@ function clearHomePage(){
 
 // PRINT NEW QUESTION
 function createNewPage(){
-    timeLeft = "50";
-    
     // Change h1 to a random question
     h1El.textContent =  currentQuestion.question;
     // Create a current question "answers value var"
@@ -115,25 +117,41 @@ function createNewPage(){
 
 // START AND MAINTAIN TIMER
 function timerHandler(){
-    if(timeLeft > 0){
-        timeLeft = parseInt(timeLeft);
-        timeLeft--;
-    }
-    else{
-        timeLeft = "0";
-        clearInterval(timerHandler);
-        // End result function()
-    }
-
-    // if(timeLeft < 5){
-    //     timeLeft.style.color = "red";
-    // }
-
+    setInterval(function(){
+        if(countNum > 0){
+            countNum--;
+            timeLeftEl.textContent = countNum;
+        }
+        else{
+            countNum = 0;
+            clearInterval(timerHandler());
+        }
+        console.log(countNum);
+    }, 1000);
     console.log("Timer started");
-    console.log(timeLeft);
-    // return countNum;
+    console.log(countNum);
+
+    if(countNum <= 5){
+        timerWarning();
+    }
 }
-setInterval(timerHandler, 1000);
+
+function timerWarning(){
+    setInterval(function(){
+        if(timer.style.color === "white"){
+            timer.style.color = "red";
+            timerBreakout++;
+        }
+        else{
+            timer.style.color = "white";
+            timerBreakout++;
+        }
+        
+        if(timerBreakout === 4){
+            clearInterval(timerWarning);
+        }
+    }, 500);
+}
 
 // RIGHT/WRONG ANSWER HANDLER
 function answerHandler(event){
@@ -149,7 +167,11 @@ function answerHandler(event){
     if(targetEl.matches(".btn") && targetEl !== currentQuestion.rightAnswer){
         // Show incorrect answer for a sec
         answerFeedback.textContent = "Incorrect...";
-        // countNum -= 10;
+        countNum -= 10;
+        timerWarning();
+        // setInterval(function(){
+
+        // }, 1000);
         console.log("Clicked wrong button");
     }
 }
@@ -189,7 +211,7 @@ function shuffle(arr){
 }
 
 function startQuiz(){
-    debugger;
+
     clearHomePage();
     createNewPage();
     timerHandler();
