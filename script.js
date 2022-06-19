@@ -15,35 +15,36 @@ var answer3 = newBtn;
 var rightAnswer = newBtn;
 var countNum = 50;
 var timerBreakout = 0;
+var nextQuestionCounter = 0;
 // question / answer objects
 var q1 = {
     question: "What do you think about Question 1?",
-    shuffleAnswers: ["Question 1 Answers", "Question 1 Answers", "Question 1 Answers", "Right Answer"],
+    answers: ["Question 1 Answers", "Question 1 Answers", "Question 1 Answers", "Right Answer"],
     rightAnswer: "Right Answer"
 }
 var q2 = {
     question: "What do you think about Question 2?",
-    shuffleAnswers: ["Question 2 Answers", "Question 2 Answers", "Question 2 Answers", "Right Answer"],
+    answers: ["Question 2 Answers", "Question 2 Answers", "Question 2 Answers", "Right Answer"],
     rightAnswer: "Right Answer"
 }
 var q3 = {
     question: "What do you think about Question 3?",
-    shuffleAnswers: ["Question 3 Answers", "Question 3 Answers", "Question 3 Answers", "Right Answer"],
+    answers: ["Question 3 Answers", "Question 3 Answers", "Question 3 Answers", "Right Answer"],
     rightAnswer: "Right Answer"
 }
 var q4 = {
     question: "What do you think about Question 4?",
-    shuffleAnswers: ["Question 4 Answers", "Question 4 Answers", "Question 4 Answers", "Right Answer"],
+    answers: ["Question 4 Answers", "Question 4 Answers", "Question 4 Answers", "Right Answer"],
     rightAnswer: "Right Answer"
 }
 var q5 = {
     question: "What do you think about Question 5?",
-    shuffleAnswers: ["Question 5 Answers", "Question 5 Answers", "Question 5 Answers", "Right Answer"],
+    answers: ["Question 5 Answers", "Question 5 Answers", "Question 5 Answers", "Right Answer"],
     rightAnswer: "Right Answer"
 }
 var q6 = {
     question: "What do you think about Question 6?",
-    shuffleAnswers: ["Question 6 Answers", "Question 6 Answers", "Question 6 Answers", "Right Answer"],
+    answers: ["Question 6 Answers", "Question 6 Answers", "Question 6 Answers", "Right Answer"],
     rightAnswer: "Right Answer"
 }
 // arrays
@@ -53,6 +54,7 @@ questionPage = [h1El, answersListEl, answerFeedback]
 var finishedQuestions = [];
 // current question
 var currentQuestion = null;
+
 
 // HOME SCREEN
 // time starter value
@@ -92,25 +94,25 @@ function clearHomePage(){
 // PRINT NEW QUESTION
 function createNewPage(){
     // Pick a questions/answers
-    currentQuestion = questionsArr[randomize(0, questionsArr.length)];
-    console.log("The current question is: ", currentQuestion);
-    debugger;
-    var currentAnswer = currentQuestion.shuffleAnswers;
+    if(nextQuestionCounter < questionsArr.length){
+        currentQuestion = questionsArr[nextQuestionCounter];
+        console.log("The current question is: ", currentQuestion)
+        var currentAnswer = currentQuestion.answers;
+        nextQuestionCounter++;
+    }
 
     // Change h1 to a random question
     h1El.textContent = "" + currentQuestion.question;
-
-    // Randomize current answer array
-    shuffle(currentAnswer);
     // Create an li for each item in currentAnswer array
     // NOTE: forEach() reference from: https://gomakethings.com/two-more-ways-to-create-html-from-an-array-of-data-with-vanilla-js/
-    var i = 1;
+    var x = 1;
     currentAnswer.forEach(function(currentAnswer){ //Couldn't I simplify the shuffle array and buttons if i just made this a "if(mainSectionEl.children.length < 4){make buttons}"?
         var answer = document.createElement("li");
-        answer.innerHTML = "<button id='data-answer-btn" + i.toString() + "' class='btn'>" + currentAnswer + "</button>";
+        answer.innerHTML = "<button id='data-answer-btn" + x.toString() + "' class='btn'>" + currentAnswer + "</button>";
         answersListEl.appendChild(answer);
-        i++;
+        x++;
     });
+    x = 1;
 
     // Create a response category
     answerFeedback.className = "answer-h2";
@@ -123,11 +125,11 @@ function createNewPage(){
 
 function clearQuestionPage(){
     // Clear main element children (except h1)
-    for(var i = 1; i < mainSectionEl.childElementCount; i++){
-        mainSectionEl.children[i].remove();
+    while(answersListEl.childElementCount > 0){
+        answersListEl.children[0].remove();
     }
-    
-    if(questionsArr.length !== 0){
+    debugger;
+    if(currentQuestion !== questionsArr[5]){
         console.log("Printing new array:");
         createNewPage();
     }
@@ -158,6 +160,7 @@ function timerHandler(){
     }
 }
 
+// DRAW USER ATTENTION TO TIME
 function timerWarning(){
     var timerInterval = setInterval(function(){
         if(timer.style.color === "white"){
@@ -185,55 +188,19 @@ function answerHandler(event){
         // Show correct answer for a sec
         answerFeedback.textContent = "Correct!";
         console.log("Right answer!");
-        debugger;
-        finishedQuestionsHandler();
         clearQuestionPage();
     }
     // if the incorrect target button is clicked...
-    if(targetEl.matches(".btn") && targetEl !== currentQuestion.rightAnswer){
+    if(targetEl.matches(".btn") && targetEl.textContent !== currentQuestion.rightAnswer){
         // Show incorrect answer for a sec
         answerFeedback.textContent = "Incorrect...";
         console.log("Wrong answer...");
         countNum -= 10;
         timerWarning();
-        finishedQuestionsHandler();
         clearQuestionPage();
     }
 }
 
-// DELETE USED QUESTIONS
-function finishedQuestionsHandler(){
-    // Remove question objects that have already been asked, by pushing them to a different array. (Might hypothetically be useful to keep questions and values for feature updates)
-    finishedQuestions.push(currentQuestion);
-    console.log(finishedQuestions);
-    questionsArr.splice(currentQuestion, 1);
-}
-
-// RANDOMIZER
-function randomize(min, max){
-    // Creating randomizer function
-    var randomValue = Math.floor((Math.random() * max - min) + min);
-    return randomValue;
-}
-
-// INDEX SHUFFLER (source: https://www.youtube.com/watch?v=tLxBwSL3lPQ)
-function shuffle(arr){
-    // In one line of code, create three vars that store the i's length, randomized j and the random index position
-    var i = arr.length, j, indexPosition;
-    // Starting at arr.length (ie. "i") and incremening DOWN until 1...
-    while(--i > 0){
-        // Assign j a random value between arr's index length + 1 and 0
-        j = randomize(0, i+1);
-        // indexPosition will placehold the randomly selected index value
-        indexPosition = arr[j];
-        // random index placement = incremental index placement
-        arr[j] = arr[i];
-        // incremental index placement will claim indexPosition's value
-        arr[i] = indexPosition;
-    }
-    // Return shuffled index
-    return arr;
-}
 
 function startQuiz(){
 
@@ -249,3 +216,6 @@ answersListEl.addEventListener("click", answerHandler);
 // For some reason, answerHandler() is being called after clearQuestionPage().
 // Issue is probably that createPage() is not creating a new question. Fix that first and see if issue persists
 // It might have something to do with the createPage() call inside of clearQuestionPage(); Idk
+
+// ISSUE:
+// I think you just need to fix the clearQuestionPage so that it only targets the buttons and the answerFeedback
