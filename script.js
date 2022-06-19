@@ -124,7 +124,7 @@ function timerHandler(){
         }
         else{
             countNum = 0;
-            clearInterval(timerHandler());
+            clearInterval(timerHandler);
         }
         console.log(countNum);
     }, 1000);
