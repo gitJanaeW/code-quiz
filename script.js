@@ -13,7 +13,9 @@ var answer1 = newBtn;
 var answer2 = newBtn;
 var answer3 = newBtn;
 var rightAnswer = newBtn;
+var moreQuestions = true;
 var countNum = 50;
+var countNum2 = 0;
 var timerBreakout = 0;
 var nextQuestionCounter = 0;
 // question / answer objects
@@ -59,46 +61,34 @@ var currentQuestion = null;
 // HOME SCREEN
 // time starter value
 timeLeftEl.textContent = 50;
-
 // setting main
-mainSectionEl.setAttribute("id", "main")
-
+mainSectionEl.setAttribute("id", "main");
 // setting h1El
 h1El.setAttribute("id", "main-h1");
 h1El.textContent = "Coding Quiz Challenge";
 mainSectionEl.appendChild(h1El);
-
 // Setting pEl
 pEl.setAttribute("id", "main-p");
 pEl.innerHTML = "Try to answer the following code-related questions within the time limit.<br>Keep in mind that incorrect answers will penalize your score/time by ten seconds!";
 mainSectionEl.appendChild(pEl);
-
 // Setting startBtnEl
 startBtnEl.className = "btn";
 startBtnEl.setAttribute("id", "start-btn");
 startBtnEl.innerHTML = "<p>Start Quiz<p>";
 mainSectionEl.appendChild(startBtnEl);
-
 // Create a ul in mainSectionEl for later (must be global so answers can be checked
 var answersListEl = document.createElement("ul");
 answersListEl.setAttribute("id", "answers");
 mainSectionEl.appendChild(answersListEl);
 
-// CLEAR HOMEPAGE
-function clearHomePage(){
-    for(var i = 1; i < homePage.length; i++){
-        homePage[i].remove();
-    }
-};
-
-// PRINT NEW QUESTION
-function createNewPage(){
+// CREATE PAGE FUNCTIONS
+function createQuizPage(){
     // Pick a questions/answers
+    // debugger;
     if(nextQuestionCounter < questionsArr.length){
         currentQuestion = questionsArr[nextQuestionCounter];
         console.log("The current question is: ", currentQuestion)
         var currentAnswer = currentQuestion.answers;
-        nextQuestionCounter++;
     }
 
     // Change h1 to a random question
@@ -113,54 +103,102 @@ function createNewPage(){
         x++;
     });
     x = 1;
-
     // Create a response category
     answerFeedback.className = "answer-h2";
-    answerFeedback.setAttribute("visiblilty", "hidden"); // I don't think this is working
     answersListEl.appendChild(answerFeedback);
-    
-    return currentAnswer;
 }
 
+function clearHomePage(){
+    for(var i = 1; i < homePage.length; i++){
+        homePage[i].remove();
+    }
+};
 
 function clearQuestionPage(){
     // Clear main element children (except h1)
     while(answersListEl.childElementCount > 0){
         answersListEl.children[0].remove();
     }
-    debugger;
     if(currentQuestion !== questionsArr[5]){
         console.log("Printing new array:");
-        createNewPage();
+        createQuizPage();
     }
     else{
-        // finalPage();
+        moreQuestions = false;
     }
 }
 
-// START AND MAINTAIN TIMER
+function createFinalScorePage(){
+    // Remove seeFeedback incase it's still on screen
+    answerFeedback.remove();
+    // Change h1 header
+    h1El.textContent = "All Done!";
+    // Show score
+    var scoreEl = document.createElement("li");
+    scoreEl.setAttribute("id", "main-p");
+    scoreEl.textContent = "Your score is " + countNum;
+    answersListEl.appendChild(scoreEl);
+    // Input player name
+    var playerNameListEl = document.createElement("li");
+    var playerNameEl = document.createElement("input");
+    playerNameListEl.appendChild(playerNameEl);
+    answersListEl.appendChild(playerNameListEl);
+}
+
+// RIGHT/WRONG ANSWER HANDLER
+function answerHandler(event){
+    var targetEl = event.target;
+    // if it's target is the right answer button...
+    if(targetEl.textContent === currentQuestion.rightAnswer){
+        answerFeedback.textContent = "Correct!";
+        console.log("Right answer!");
+        nextQuestionCounter++;
+        seeFeedback();
+        clearQuestionPage();
+    }
+    // if the incorrect target button is clicked...
+    if(targetEl.matches(".btn") && targetEl.textContent !== currentQuestion.rightAnswer){
+        // Show incorrect answer for a sec
+        answerFeedback.textContent = "Incorrect...";
+        console.log("Wrong answer...");
+        seeFeedback();
+        countNum -= 10;
+        timerWarning();
+    }
+}
+
+// TIMERS
+// Countdown timer
 function timerHandler(){
     var timerInterval = setInterval(function(){
+        // If the still has time left...
         if(countNum > 1){
+            if(!moreQuestions){
+                timeLeftEl.textContent = countNum;
+                clearInterval(timerInterval);
+                clearQuestionPage();
+                createFinalScorePage();
+            }
+            // If the player has finished all the questions in questionArr...
             countNum--;
             timeLeftEl.textContent = countNum;
-        }
+
+        } // If the player runs out of time...    
         else{
-            countNum = 0
+            countNum = 0;
             timeLeftEl.textContent = countNum;
             clearInterval(timerInterval);
-            // resultsPage();
+            createFinalScorePage();
         }
-        // console.log(countNum);
+        console.log(countNum);
     }, 1000);
-    console.log("Timer started");
+    console.log("countNum", countNum);
     // Why isn't this working?
     if(countNum === 5){
         timerWarning();
     }
 }
-
-// DRAW USER ATTENTION TO TIME
+// Draw attention to time with flashing red color
 function timerWarning(){
     var timerInterval = setInterval(function(){
         if(timer.style.color === "white"){
@@ -179,43 +217,31 @@ function timerWarning(){
     timer.style.color = "white";
     timerBreakout = 0;
 }
-
-// RIGHT/WRONG ANSWER HANDLER
-function answerHandler(event){
-    var targetEl = event.target;
-    // if it's target is the right answer button...
-    if(targetEl.textContent === currentQuestion.rightAnswer){
-        // Show correct answer for a sec
-        answerFeedback.textContent = "Correct!";
-        console.log("Right answer!");
-        clearQuestionPage();
-    }
-    // if the incorrect target button is clicked...
-    if(targetEl.matches(".btn") && targetEl.textContent !== currentQuestion.rightAnswer){
-        // Show incorrect answer for a sec
-        answerFeedback.textContent = "Incorrect...";
-        console.log("Wrong answer...");
-        countNum -= 10;
-        timerWarning();
-        clearQuestionPage();
-    }
+// Give user time to see answer feedback
+function seeFeedback(){
+    var timerInterval = setInterval(() => {
+        console.log("NEW TIMER", countNum2);
+        countNum2++;
+        if(countNum2 > 1){
+            clearInterval(timerInterval);
+            answerFeedback.innerHTML = "";
+            countNum2 = 0;
+        }
+    }, 1000);
 }
 
+// GET PLAYER NAME FUNCTION
 
+
+// STORAGE FUNCTIONS
+
+// START FUNCTION
 function startQuiz(){
-
     clearHomePage();
-    createNewPage();
+    createQuizPage();
     timerHandler();
     // wait for answerHandler() event "click"
 }
 
 startBtnEl.addEventListener("click", startQuiz);
 answersListEl.addEventListener("click", answerHandler);
-// NOTE TO SELF:
-// For some reason, answerHandler() is being called after clearQuestionPage().
-// Issue is probably that createPage() is not creating a new question. Fix that first and see if issue persists
-// It might have something to do with the createPage() call inside of clearQuestionPage(); Idk
-
-// ISSUE:
-// I think you just need to fix the clearQuestionPage so that it only targets the buttons and the answerFeedback

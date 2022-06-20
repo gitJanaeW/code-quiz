@@ -17,6 +17,13 @@ html{font-family:Arial, Helvetica, sans-serif}
 
 ul{list-style-type: none;}
 
+input{
+    border-radius: 3px;
+    padding: 5px;
+    width: 50%;
+    background-color: ;
+}
+
 .btn{
     border: none;
     box-shadow: 0 3px var(--box-shadow);
