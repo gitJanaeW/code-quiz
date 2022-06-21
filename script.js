@@ -3,19 +3,20 @@
 var mainSectionEl = document.querySelector("#main"); // OFFICE HOURS: Is getting an element by its class appropriate? Should it always be by its id?
 var timeLeftEl = document.querySelector("#time-counter");
 var timer = document.querySelector(".time");
+var highScoreBtn = document.querySelector("#high-score-btn");
 // created elements
 var h1El = document.createElement("h1");
 var pEl = document.createElement("p");
-var newBtn = document.createElement("button");
 var answerFeedback = document.createElement("h2");
-var startBtnEl = newBtn;
-var answer1 = newBtn;
-var answer2 = newBtn;
-var answer3 = newBtn;
-var rightAnswer = newBtn;
-var moreQuestions = true;
+var formEl = document.createElement("form");
+var playerNameEl = document.createElement("input");
+var answersListEl = document.createElement("ul");
+var startBtnEl = document.createElement("button");
+var rightAnswer = document.createElement("button");
+// incrementors
 var countNum = 50;
 var countNum2 = 0;
+var countNum3 = 0;
 var timerBreakout = 0;
 var nextQuestionCounter = 0;
 // question / answer objects
@@ -54,32 +55,38 @@ var questionsArr = [q1, q2, q3, q4, q5, q6];
 var homePage = [h1El, pEl, startBtnEl];
 questionPage = [h1El, answersListEl, answerFeedback]
 var finishedQuestions = [];
-// current question
+// misc
+var userScore = {
+    name: "",
+    score: 0
+};
 var currentQuestion = null;
+var moreQuestions = true;
 
+function createHomePage(){
+    // HOME SCREEN
+    // time starter value
+    timeLeftEl.textContent = 50;
+    // setting main
+    mainSectionEl.setAttribute("id", "main");
+    // setting h1El
+    h1El.setAttribute("id", "main-h1");
+    h1El.textContent = "Coding Quiz Challenge";
+    mainSectionEl.appendChild(h1El);
+    // Setting pEl
+    pEl.setAttribute("id", "main-p");
+    pEl.innerHTML = "Try to answer the following code-related questions within the time limit.<br>Keep in mind that incorrect answers will penalize your score/time by ten seconds!";
+    mainSectionEl.appendChild(pEl);
+    // Setting startBtnEl
+    startBtnEl.className = "btn";
+    startBtnEl.setAttribute("id", "start-btn");
+    startBtnEl.innerHTML = "<p>Start Quiz<p>";
+    mainSectionEl.appendChild(startBtnEl);
+    // Setiing a ul in mainSectionEl for later (must be global so answers can be checked
+    answersListEl.setAttribute("id", "answers");
+    mainSectionEl.appendChild(answersListEl);
+}
 
-// HOME SCREEN
-// time starter value
-timeLeftEl.textContent = 50;
-// setting main
-mainSectionEl.setAttribute("id", "main");
-// setting h1El
-h1El.setAttribute("id", "main-h1");
-h1El.textContent = "Coding Quiz Challenge";
-mainSectionEl.appendChild(h1El);
-// Setting pEl
-pEl.setAttribute("id", "main-p");
-pEl.innerHTML = "Try to answer the following code-related questions within the time limit.<br>Keep in mind that incorrect answers will penalize your score/time by ten seconds!";
-mainSectionEl.appendChild(pEl);
-// Setting startBtnEl
-startBtnEl.className = "btn";
-startBtnEl.setAttribute("id", "start-btn");
-startBtnEl.innerHTML = "<p>Start Quiz<p>";
-mainSectionEl.appendChild(startBtnEl);
-// Create a ul in mainSectionEl for later (must be global so answers can be checked
-var answersListEl = document.createElement("ul");
-answersListEl.setAttribute("id", "answers");
-mainSectionEl.appendChild(answersListEl);
 
 // CREATE PAGE FUNCTIONS
 function createQuizPage(){
@@ -108,6 +115,65 @@ function createQuizPage(){
     answersListEl.appendChild(answerFeedback);
 }
 
+function createFinalScorePage(){
+    // Remove previous elements
+    answerFeedback.remove();
+    answersListEl.remove();
+    // New main element append
+    mainSectionEl.appendChild(formEl);
+    // Change h1 header
+    h1El.textContent = "All Done!";
+    // Show score
+    var scoreEl = document.createElement("p");
+    scoreEl.setAttribute("id", "results-p");
+    scoreEl.textContent = "Your score is " + countNum + ".";
+    formEl.appendChild(scoreEl);
+    // Label for input
+    var labelEl = document.createElement("label");
+    labelEl.setAttribute("for", "username");
+    labelEl.textContent = ("Your username: ");
+    formEl.appendChild(labelEl);
+    // Input player name
+    playerNameEl.setAttribute("id", "username");
+    formEl.appendChild(playerNameEl);
+    // Insert line break
+    var brEl = document.createElement("br");
+    formEl.appendChild(brEl);
+    // Submit button
+    var submitEl = document.createElement("input");
+    submitEl.setAttribute("type", "submit");
+    submitEl.setAttribute("id", "submit-btn");
+    submitEl.className = "btn";
+    submitEl.innerHTML = "<p>Submit</p>";
+    formEl.appendChild(submitEl);
+}
+
+function createHighScorePage(){
+    // Change header text
+    h1El.textContent = "High Scores";
+    // create ol for scores
+    var highScoreListEl = document.createElement("ul");
+    mainSectionEl.appendChild(highScoreListEl);
+    // Retrieve localStorage
+    var collectObj = {};
+    var keys = Object.keys(localStorage);
+    var i = keys.length;
+    while (i--){
+        collectObj[keys[i]] = localStorage.getItem(keys[i]);
+        console.log(collectObj)
+    }
+    // Print scores
+    var x = 0;
+    if(collectObj.length){
+        var scoreItemEl = document.createElement("li");
+        scoreItemEl.textContent = archive.userScore.name + " " + archive.userScore.score;
+        highScoreListEl.appendChild(scoreItemEl);
+        x++;
+    }
+
+        
+}
+
 function clearHomePage(){
     for(var i = 1; i < homePage.length; i++){
         homePage[i].remove();
@@ -128,23 +194,6 @@ function clearQuestionPage(){
     }
 }
 
-function createFinalScorePage(){
-    // Remove seeFeedback incase it's still on screen
-    answerFeedback.remove();
-    // Change h1 header
-    h1El.textContent = "All Done!";
-    // Show score
-    var scoreEl = document.createElement("li");
-    scoreEl.setAttribute("id", "main-p");
-    scoreEl.textContent = "Your score is " + countNum;
-    answersListEl.appendChild(scoreEl);
-    // Input player name
-    var playerNameListEl = document.createElement("li");
-    var playerNameEl = document.createElement("input");
-    playerNameListEl.appendChild(playerNameEl);
-    answersListEl.appendChild(playerNameListEl);
-}
-
 // RIGHT/WRONG ANSWER HANDLER
 function answerHandler(event){
     var targetEl = event.target;
@@ -153,7 +202,7 @@ function answerHandler(event){
         answerFeedback.textContent = "Correct!";
         console.log("Right answer!");
         nextQuestionCounter++;
-        seeFeedback();
+        seeFeedback(1000);
         clearQuestionPage();
     }
     // if the incorrect target button is clicked...
@@ -161,7 +210,7 @@ function answerHandler(event){
         // Show incorrect answer for a sec
         answerFeedback.textContent = "Incorrect...";
         console.log("Wrong answer...");
-        seeFeedback();
+        seeFeedback(1000);
         countNum -= 10;
         timerWarning();
     }
@@ -218,7 +267,7 @@ function timerWarning(){
     timerBreakout = 0;
 }
 // Give user time to see answer feedback
-function seeFeedback(){
+function seeFeedback(time){
     var timerInterval = setInterval(() => {
         console.log("NEW TIMER", countNum2);
         countNum2++;
@@ -227,21 +276,41 @@ function seeFeedback(){
             answerFeedback.innerHTML = "";
             countNum2 = 0;
         }
-    }, 1000);
+    }, time);
 }
 
 // GET PLAYER NAME FUNCTION
+function getUserName(){
+    debugger;
+    // if(!playerNameEl.value){
+    //     var messageEl = document.createElement("p");
+    //     messageEl.style.color = "red";
+    //     messageEl.textContent = "Please enter a username.";
+    //     formEl.appendChild(messageEl);
+    //     createFinalScorePage();
+    // }
+    // else{
+        var scores = [];
+        userScore.name = playerNameEl.value;
+        userScore.score = countNum;
+        scores.push(userScore);
+        console.log(scores);
+        localStorage.setItem("User Score - " + countNum3, JSON.stringify(scores));
+        countNum3++;
+    // }
+}
 
 
-// STORAGE FUNCTIONS
-
-// START FUNCTION
+// START QUIZ
+createHomePage();
 function startQuiz(){
     clearHomePage();
     createQuizPage();
     timerHandler();
-    // wait for answerHandler() event "click"
 }
 
 startBtnEl.addEventListener("click", startQuiz);
 answersListEl.addEventListener("click", answerHandler);
+formEl.addEventListener("submit", getUserName);
+highScoreBtn.addEventListener("click", createHighScorePage);
+
