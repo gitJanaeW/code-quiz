@@ -21,7 +21,6 @@ input{
     border-radius: 3px;
     padding: 5px;
     width: 50%;
-    background-color: ;
 }
 
 .btn{
@@ -38,6 +37,10 @@ input{
 
 p{
     font-weight: bold;
+}
+
+.hide{
+    display: "none"
 }
 
 #header{
@@ -133,6 +136,36 @@ p{
     margin: 0 auto;
     width: 80%;
 }
+
+.highscores{
+    display: flex;
+    flex-direction: column;
+    padding: 2px 20%;
+}
+
+.highscores li{
+    display: flex;
+    justify-content: space-between;
+    list-style: none;
+    padding: 5px;
+}
+
+.grey-bar{
+    background-color: rgb(163, 167, 184);
+}
+
+.pale-bar{
+    background-color: rgb(223, 226, 239);
+}
+
+form{
+    display: flex;
+    flex-direction: column;
+}
+
+form > * {
+    margin: 10px auto;
+};
 
 @media screen(max-width: 490) {
     /* Change h1 font size, button size and ul margins */
